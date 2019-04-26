@@ -1,3 +1,36 @@
+---
+title: "ATBC Diversity Figures"
+author: "Emilio M. Bruna"
+date: "4/26/2019"
+output: pdf_document
+classoption: landscape
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8) 
+```
+
+<!-- ## R Markdown -->
+
+<!-- This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>. -->
+
+<!-- When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this: -->
+
+<!-- # ```{r cars} -->
+<!-- # summary(cars) -->
+<!-- # ``` -->
+
+<!-- ## Including Plots -->
+
+<!-- You can also embed plots, for example: -->
+
+<!-- # ```{r pressure, echo=FALSE} -->
+<!-- # plot(pressure) -->
+<!-- # ``` -->
+
+```{r plots,include=FALSE}
 # R CODE FOR IMPORTING, MANIPULATING, AND ANALYZING THE DATASETS USED IN: 
 
 
@@ -57,8 +90,9 @@ fellows<-AddIncomeRegion(fellows)
 fellows<-fellows %>% rename("region"="REGION")
 awards<-AddIncomeRegion(awards)
 awards<-awards %>% rename("region"="REGION")
+```
 
-
+```{r plot_officers_code,include=FALSE}
 ######################################################################
 # PLOT: OFFICER GEOGRAPHY - by COUNTRY
 ######################################################################
@@ -77,7 +111,7 @@ plot_officers<-ggplot(data=officers_geo,
                       aes(x=reorder(geo.code,perc), y=perc, fill=reorder(region,perc)))
 
 plot_officers<-plot_officers+
-  ggtitle("Country in which ATBC Officers are based (1965-2019)") + 
+  ggtitle("Country in which ATBC Officers are based (1965-2019") + 
   xlab("country") +
   ylab("percent of officers")+
   scale_fill_brewer(palette="Blues")
@@ -90,13 +124,15 @@ plot_officers<-plot_officers + coord_flip()
 
 plot_officers<-plot_officers +theme(panel.border = element_blank(), panel.grid.major = element_blank(), 
              panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), 
-             plot.title = element_text(hjust=0.05, vjust=-1.8, face="bold", size=22),        
+             plot.title = element_text(hjust=0.05, vjust=-1.8, face="bold", size=16),        
              axis.title.x=element_text(colour="black", size = 18, vjust=-2),            
              axis.title.y=element_text(colour="black", size = 18, vjust=2),            
              axis.text=element_text(colour="black", size = 16),                              
              legend.position = "right")                                                      
 plot_officers
+```
 
+```{r plot_officers2_code,include=FALSE}
 ######################################################################
 # PLOT: OFFICER GEOGRAPHY - by REGION
 ######################################################################
@@ -121,7 +157,7 @@ plot_officers2
 plot_officers2<-plot_officers2 + coord_flip()+theme_bw()
 plot_officers2<-plot_officers2+  theme(panel.border = element_blank(), panel.grid.major = element_blank(), 
                                      panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), 
-                                     plot.title = element_text(hjust=0.05, vjust=-1.8, face="bold", size=22),        
+                                     plot.title = element_text(hjust=0.05, vjust=-1.8, face="bold", size=16),        
                                      axis.title.x=element_text(colour="black", size = 18, vjust=-2),            
                                      axis.title.y=element_text(colour="black", size = 18, vjust=2),            
                                      axis.text=element_text(colour="black", size = 16),                              
@@ -129,10 +165,9 @@ plot_officers2<-plot_officers2+  theme(panel.border = element_blank(), panel.gri
 plot_officers2
 
 
+```
 
-
-
-
+```{r plot_officers3_code, include=FALSE}
 
 
 ######################################################################
@@ -170,7 +205,9 @@ plot_officers3
 
 
 
+```
 
+```{r plot_fellows2_code,include=FALSE}
 
 
 ######################################################################
@@ -188,7 +225,7 @@ plot_fellows2<-ggplot(data=fellows_region,
                        aes(x=reorder(region,perc), y=perc, fill=reorder(region,perc)))
 
 plot_fellows2<-plot_fellows2+
-  ggtitle("Region in which ATBC Fellows are based (1963-2019") + 
+  ggtitle("Region in which ATBC Fellows are based (1963-2019)") + 
   xlab("region") + 
   ylab("percent of fellows")+
   scale_fill_brewer(palette="Blues")
@@ -197,7 +234,7 @@ plot_fellows2
 plot_fellows2<-plot_fellows2 + coord_flip()+theme_bw()
 plot_fellows2<-plot_fellows2+  theme(panel.border = element_blank(), panel.grid.major = element_blank(), 
                                        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), 
-                                       plot.title = element_text(hjust=0.05, vjust=-1.8, face="bold", size=22),        
+                                       plot.title = element_text(hjust=0.05, vjust=-1.8, face="bold", size=16),        
                                        axis.title.x=element_text(colour="black", size = 18, vjust=-2),            
                                        axis.title.y=element_text(colour="black", size = 18, vjust=2),            
                                        axis.text=element_text(colour="black", size = 16),                              
@@ -206,7 +243,28 @@ plot_fellows2
 
 
 
+```
 
 
 
 
+```
+
+
+```{r plot_officers, echo=FALSE}
+plot(plot_officers)
+```
+
+```{r plot_officers2, echo=FALSE}
+plot(plot_officers2)
+```
+
+```{r plot_officers3, echo=FALSE}
+plot(plot_officers3)
+```
+
+```{r plot_fellows2, echo=FALSE}
+plot(plot_fellows2)
+```
+
+<!-- Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot. -->
