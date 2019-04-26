@@ -1,6 +1,6 @@
 ---
 title: "ATBC Diversity Figures"
-author: "Emilio M. Bruna"
+author: "Code by: Emilio M. Bruna"
 date: "4/26/2019"
 output: pdf_document
 classoption: landscape
@@ -44,6 +44,8 @@ library(RColorBrewer)
 
 # READ IN THE DATA FILES
 officers<-read.csv("./data_raw/Officers.csv", dec=".", header = TRUE, sep = ",", na.strings=c("","NA"), check.names=FALSE)
+officers_gender<-read.csv("./data_raw/officers_for_gender.csv", dec=".", header = TRUE, sep = ",", na.strings=c("","NA"), check.names=FALSE)
+
 awards<-read.csv("./data_raw/Awards.csv", dec=".", header = TRUE, sep = ",", na.strings=c("","NA"), check.names=FALSE)
 fellows<-read.csv("./data_raw/Fellows.csv", dec=".", header = TRUE, sep = ",", na.strings=c("","NA"), check.names=FALSE)
 
@@ -90,6 +92,17 @@ fellows<-AddIncomeRegion(fellows)
 fellows<-fellows %>% rename("region"="REGION")
 awards<-AddIncomeRegion(awards)
 awards<-awards %>% rename("region"="REGION")
+#################
+# adds gender to officers
+#################
+
+officers<-left_join(officers,officers_gender,by=NULL)
+#################
+# filter the officers to include
+#################
+
+officers<-officers %>% filter(position=="President"|position=="Secretary"|position=="Executive Director"|position=="Editor"|position=="Councilor"|position=="Treasurer"|position=="Secretary-Treasurer")
+summary(officers)
 ```
 
 ```{r plot_officers_code,include=FALSE}
@@ -246,10 +259,68 @@ plot_fellows2
 ```
 
 
+```{r plot_officers_gender_code,include=FALSE}
+#######################
+# Officer Gender
+#######################
 
+officers_gender<-officers %>% select(position,last_name,country,geo.code,region,gender) %>% distinct() %>% group_by(gender)
+officers_gender<-na.omit(officers_gender)
+officers_gender<-officers_gender %>% count(gender) %>% arrange(desc(n))
+officers_gender$perc<-officers_gender$n/sum(officers_gender$n)*100
 
+# Now the plot
+
+plot_officers4<-ggplot(data=officers_gender, 
+                       aes(x=reorder(gender,perc), y=perc))
+
+plot_officers4<-plot_officers4+
+  ggtitle("ATBC Officers Gender (1963-2019") + 
+  xlab("region") + 
+  ylab("percent of officers")
+plot_officers4<-plot_officers4+geom_bar(stat="identity")
+plot_officers4<-plot_officers4 + theme_bw()
+plot_officers4<-plot_officers4+  theme(panel.border = element_blank(), panel.grid.major = element_blank(), 
+                                       panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), 
+                                       plot.title = element_text(hjust=0.05, vjust=-1.8, face="bold", size=22),        
+                                       axis.title.x=element_text(colour="black", size = 18, vjust=-2),            
+                                       axis.title.y=element_text(colour="black", size = 18, vjust=2),            
+                                       axis.text=element_text(colour="black", size = 16),                              
+                                       legend.position = "none")                                                      
+plot_officers4
 ```
 
+```{r plot_fellows_gender_code,include=FALSE}
+fellows_gender<-fellows %>% select(last_name,country,geo.code,region,gender) %>% distinct() %>% group_by(gender)
+fellows_gender<-fellows_gender %>% count(gender) %>% arrange(desc(n))
+fellows_gender$perc<-fellows_gender$n/sum(fellows_gender$n)*100
+
+plot_fellows_gender<-ggplot(data=fellows_gender, 
+                      aes(x=reorder(gender,perc), y=perc))
+
+plot_fellows_gender<-plot_fellows_gender+
+  ggtitle("ATBC Fellows by Gender (1963-2019") + 
+  xlab("gender") + 
+  ylab("percent of fellows")
+plot_fellows_gender<-plot_fellows_gender+geom_bar(stat="identity")
+plot_fellows_gender
+plot_fellows_gender<-plot_fellows_gender +theme_bw()
+plot_fellows_gender<-plot_fellows_gender+  theme(panel.border = element_blank(), panel.grid.major = element_blank(), 
+                                     panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), 
+                                     plot.title = element_text(hjust=0.05, vjust=-1.8, face="bold", size=22),        
+                                     axis.title.x=element_text(colour="black", size = 18, vjust=-2),            
+                                     axis.title.y=element_text(colour="black", size = 18, vjust=2),            
+                                     axis.text=element_text(colour="black", size = 16),                              
+                                     legend.position = "right")                                                      
+plot_fellows_gender
+```
+
+Note:
+1) These are are to visualize, there are more creative ways to present these in a manuscript.
+
+2) The ratio of M:F officers will shift "Male" because the councilors from 1971 to the early 1980's have not been added to the data.
+
+3) The "regions"" are the World Bank Regions and we can adapt these to our needs. PD and LL suggested: 3a) Shifting South Asia in with East Asia Pacific 3b) All Africa together instead of splitting out N. Africa. 3c) If no central asia, then just simplify to "Europe"
 
 ```{r plot_officers, echo=FALSE}
 plot(plot_officers)
@@ -266,5 +337,14 @@ plot(plot_officers3)
 ```{r plot_fellows2, echo=FALSE}
 plot(plot_fellows2)
 ```
+
+```{r plot_officers4, echo=FALSE}
+plot(plot_officers4)
+```
+
+```{r plot_fellows_gender, echo=FALSE}
+plot(plot_fellows_gender)
+```
+
 
 <!-- Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot. -->

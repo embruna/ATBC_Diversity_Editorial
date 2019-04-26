@@ -11,6 +11,7 @@ library(RColorBrewer)
 
 # READ IN THE DATA FILES
 officers<-read.csv("./data_raw/Officers.csv", dec=".", header = TRUE, sep = ",", na.strings=c("","NA"), check.names=FALSE)
+officers_gender<-read.csv("./data_raw/officers_for_gender.csv", dec=".", header = TRUE, sep = ",", na.strings=c("","NA"), check.names=FALSE)
 awards<-read.csv("./data_raw/Awards.csv", dec=".", header = TRUE, sep = ",", na.strings=c("","NA"), check.names=FALSE)
 fellows<-read.csv("./data_raw/Fellows.csv", dec=".", header = TRUE, sep = ",", na.strings=c("","NA"), check.names=FALSE)
 
@@ -59,11 +60,25 @@ awards<-AddIncomeRegion(awards)
 awards<-awards %>% rename("region"="REGION")
 
 
+#################
+# adds gender to officers
+#################
+
+officers<-left_join(officers,officers_gender,by=NULL)
+
+
+#################
+# filter the officers to include
+#################
+
+officers<-officers %>% filter(position=="President"|position=="Secretary"|position=="Executive Director"|position=="Editor"|position=="Councilor"|position=="Treasurer"|position=="Secretary-Treasurer")
+summary(officers)
+
 ######################################################################
 # PLOT: OFFICER GEOGRAPHY - by COUNTRY
 ######################################################################
 # first need to make sure each officer is listed only one
-officers_geo<-officers %>% select(position,last_name,country,geo.code,region) %>% distinct() %>% group_by(geo.code)
+officers_geo<-officers %>% select(position,first_name,last_name,country,geo.code,region) %>% distinct() %>% group_by(geo.code)
 officers_geo<-na.omit(officers_geo)
 str(officers_geo)
 officers_geo<-officers_geo %>% arrange(geo.code,region) %>% count(geo.code,region) %>% arrange(desc(n))
@@ -169,6 +184,39 @@ plot_officers3
 
 
 
+#######################
+# Officer Gender
+#######################
+
+officers_gender<-officers %>% select(position,last_name,country,geo.code,region,gender) %>% distinct() %>% group_by(gender)
+officers_gender<-na.omit(officers_gender)
+officers_gender<-officers_gender %>% count(gender) %>% arrange(desc(n))
+officers_gender$perc<-officers_gender$n/sum(officers_gender$n)*100
+
+# Now the plot
+
+plot_officers4<-ggplot(data=officers_gender, 
+                       aes(x=reorder(gender,perc), y=perc))
+
+plot_officers4<-plot_officers4+
+  ggtitle("ATBC Officers Gender (1963-2019") + 
+  xlab("region") + 
+  ylab("percent of officers")
+plot_officers4<-plot_officers4+geom_bar(stat="identity")
+plot_officers4<-plot_officers4 + theme_bw()
+plot_officers4<-plot_officers4+  theme(panel.border = element_blank(), panel.grid.major = element_blank(), 
+                                       panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), 
+                                       plot.title = element_text(hjust=0.05, vjust=-1.8, face="bold", size=22),        
+                                       axis.title.x=element_text(colour="black", size = 18, vjust=-2),            
+                                       axis.title.y=element_text(colour="black", size = 18, vjust=2),            
+                                       axis.text=element_text(colour="black", size = 16),                              
+                                       legend.position = "none")                                                      
+plot_officers4
+
+
+
+
+
 
 
 
@@ -176,16 +224,16 @@ plot_officers3
 ######################################################################
 # PLOT: FELLOWS GEOGRAPHY - by REGION
 ######################################################################
-fellows_region<-fellows %>% select(last_name,country,geo.code,region) %>% distinct() %>% group_by(region)
+fellows_region<-fellows %>% select(last_name,country,geo.code,region,gender) %>% distinct() %>% group_by(region)
 fellows_region<-na.omit(fellows_region)
 str(fellows_region)
-fellows_region<-fellows_region %>% arrange(region) %>% count(region) %>% arrange(desc(n))
+fellows_region<-fellows_region %>% arrange(region) %>% count(region,gender) %>% arrange(desc(n))
 fellows_region$perc<-fellows_region$n/sum(fellows_region$n)*100
 
 # Now the plot
 
 plot_fellows2<-ggplot(data=fellows_region, 
-                       aes(x=reorder(region,perc), y=perc, fill=reorder(region,perc)))
+                       aes(x=reorder(region,perc), y=perc, fill=reorder(gender,perc)))
 
 plot_fellows2<-plot_fellows2+
   ggtitle("Region in which ATBC Fellows are based (1963-2019") + 
@@ -201,9 +249,34 @@ plot_fellows2<-plot_fellows2+  theme(panel.border = element_blank(), panel.grid.
                                        axis.title.x=element_text(colour="black", size = 18, vjust=-2),            
                                        axis.title.y=element_text(colour="black", size = 18, vjust=2),            
                                        axis.text=element_text(colour="black", size = 16),                              
-                                       legend.position = "none")                                                      
+                                       legend.position = "right")                                                      
 plot_fellows2
 
+####################
+# OR ALTERNATIVELY
+####################
+fellows_gender<-fellows %>% select(last_name,country,geo.code,region,gender) %>% distinct() %>% group_by(gender)
+fellows_gender<-fellows_gender %>% count(gender) %>% arrange(desc(n))
+fellows_gender$perc<-fellows_gender$n/sum(fellows_gender$n)*100
+
+plot_fellows_gender<-ggplot(data=fellows_gender, 
+                      aes(x=reorder(gender,perc), y=perc))
+
+plot_fellows_gender<-plot_fellows_gender+
+  ggtitle("ATBC Fellows by Gender (1963-2019") + 
+  xlab("gender") + 
+  ylab("percent of fellows")
+plot_fellows_gender<-plot_fellows_gender+geom_bar(stat="identity")
+plot_fellows_gender
+plot_fellows_gender<-plot_fellows_gender +theme_bw()
+plot_fellows_gender<-plot_fellows_gender+  theme(panel.border = element_blank(), panel.grid.major = element_blank(), 
+                                     panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"), 
+                                     plot.title = element_text(hjust=0.05, vjust=-1.8, face="bold", size=22),        
+                                     axis.title.x=element_text(colour="black", size = 18, vjust=-2),            
+                                     axis.title.y=element_text(colour="black", size = 18, vjust=2),            
+                                     axis.text=element_text(colour="black", size = 16),                              
+                                     legend.position = "right")                                                      
+plot_fellows_gender
 
 
 
